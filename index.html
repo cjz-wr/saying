@@ -162,8 +162,8 @@
         document.getElementById('source').innerText = '';
       });
     function wrapChars(text) {
-      // 直接返回原文本，不再包裹 span
-      return text;
+      // 每个字符用 span.char 包裹
+      return text.split('').map((ch, i) => `<span class="char" style="opacity:0;">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
     }
     function explodeChars(callback) {
       // 不做任何动画，直接回调
@@ -176,6 +176,14 @@
       void content.offsetWidth;
       content.innerHTML = wrapChars(newQuote.content);
       content.style.animation = '';
+      // 逐字显示动画
+      const chars = content.querySelectorAll('.char');
+      chars.forEach((span, i) => {
+        setTimeout(() => {
+          span.style.transition = 'opacity 0.25s';
+          span.style.opacity = '1';
+        }, 40 * i);
+      });
       // 作者和出处淡入淡出动画不变
       const author = document.getElementById('author');
       const source = document.getElementById('source');
