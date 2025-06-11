@@ -98,23 +98,6 @@
         .btn:active {
             transform: scale(0.96);
         }
-        .particle {
-            position: absolute;
-            pointer-events: none;
-            border-radius: 50%;
-            width: 8px;
-            height: 8px;
-            background: linear-gradient(135deg, #ff9800 60%, #ffd6a0 100%);
-            opacity: 0.8;
-            z-index: 10;
-            animation: particle-explode 0.7s forwards;
-        }
-        @keyframes particle-explode {
-            to {
-                opacity: 0;
-                transform: translate(var(--tx), var(--ty)) scale(0.7) rotate(360deg);
-            }
-        }
         .content-wrapper {
             position: relative;
             min-height: 80px;
@@ -162,28 +145,6 @@
         document.getElementById('author').innerText = '';
         document.getElementById('source').innerText = '';
       });
-    function createParticles() {
-      const wrapper = document.querySelector('.content-wrapper');
-      const rect = wrapper.getBoundingClientRect();
-      const count = 24;
-      for (let i = 0; i < count; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        // 随机角度和距离
-        const angle = Math.random() * 2 * Math.PI;
-        const distance = 60 + Math.random() * 40;
-        const tx = Math.cos(angle) * distance;
-        const ty = Math.sin(angle) * distance;
-        p.style.setProperty('--tx', tx + 'px');
-        p.style.setProperty('--ty', ty + 'px');
-        // 随机初始位置在内容区域中心
-        p.style.left = (rect.width / 2 - 4) + 'px';
-        p.style.top = (rect.height / 2 - 4) + 'px';
-        p.style.background = `linear-gradient(135deg, #ff9800 ${(60+Math.random()*30)}%, #ffd6a0 100%)`;
-        wrapper.appendChild(p);
-        setTimeout(() => p.remove(), 700);
-      }
-    }
     function wrapChars(text) {
       // 将每个字符用 span.char 包裹
       return text.split('').map((ch, i) => `<span class="char" data-idx="${i}">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
