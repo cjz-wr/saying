@@ -57,6 +57,20 @@
             text-align: center;
             letter-spacing: 1px;
             min-height: 80px;
+            /* 新增字体动画 */
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+            animation: fadeInText 0.7s cubic-bezier(.39,.575,.565,1.000) forwards;
+        }
+        @keyframes fadeInText {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
         .content .char {
             color: inherit;
@@ -142,6 +156,8 @@
       })
       .catch(e => {
         document.getElementById('content').innerText = '名言数据加载失败，请刷新或联系站长！';
+        document.getElementById('content').style.opacity = '1';
+        document.getElementById('content').style.transform = 'none';
         document.getElementById('author').innerText = '';
         document.getElementById('source').innerText = '';
       });
@@ -155,7 +171,11 @@
     }
     function animateQuoteChange(newQuote) {
       const content = document.getElementById('content');
+      // 触发重新动画
+      content.style.animation = 'none';
+      void content.offsetWidth;
       content.innerHTML = wrapChars(newQuote.content);
+      content.style.animation = '';
       // 作者和出处淡入淡出动画不变
       const author = document.getElementById('author');
       const source = document.getElementById('source');
