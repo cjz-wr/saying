@@ -187,11 +187,30 @@
     }
     function explodeChars(callback) {
       const content = document.getElementById('content');
-      const chars = content.querySelectorAll('.char');
-      // 强制重绘，确保动画能触发
-      chars.forEach(span => span.offsetWidth);
+      const wrapper = document.querySelector('.content-wrapper');
+      const chars = Array.from(content.querySelectorAll('.char'));
+      // 计算每个字的绝对位置
+      const contentRect = content.getBoundingClientRect();
+      const wrapperRect = wrapper.getBoundingClientRect();
       chars.forEach((span, i) => {
-        // 随机方向和旋转，距离更大
+        const rect = span.getBoundingClientRect();
+        // 计算相对于 wrapper 的位置
+        const left = rect.left - wrapperRect.left;
+        const top = rect.top - wrapperRect.top;
+        // 变为绝对定位
+        span.style.position = 'absolute';
+        span.style.left = left + 'px';
+        span.style.top = top + 'px';
+        span.style.width = rect.width + 'px';
+        span.style.height = rect.height + 'px';
+      });
+      // 让 content 清空，chars 直接挂到 wrapper 上
+      content.innerHTML = '';
+      chars.forEach(span => wrapper.appendChild(span));
+      // 强制重绘
+      chars.forEach(span => span.offsetWidth);
+      // 爆炸动画
+      chars.forEach((span, i) => {
         const angle = Math.random() * 2 * Math.PI;
         const distance = 90 + Math.random() * 60;
         const tx = Math.cos(angle) * distance;
@@ -203,17 +222,18 @@
         span.classList.add('char-explode');
       });
       setTimeout(() => {
-        content.innerHTML = '';
+        // 移除所有爆炸字
+        chars.forEach(span => span.remove());
         callback();
-      }, 750); // 动画结束后清空内容再回调
+      }, 800);
     }
     function animateQuoteChange(newQuote) {
       const content = document.getElementById('content');
+      const wrapper = document.querySelector('.content-wrapper');
       if (content.innerHTML.trim()) {
         explodeChars(() => {
-          // 切换新内容
           content.innerHTML = wrapChars(newQuote.content);
-          // 让新字从小到正常出现
+          // 新字弹入
           const chars = content.querySelectorAll('.char');
           chars.forEach((span, i) => {
             span.style.opacity = '0';
