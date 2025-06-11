@@ -116,6 +116,15 @@
             position: relative;
             min-height: 80px;
         }
+        .char {
+            display: inline-block;
+            transition: transform 0.7s cubic-bezier(.6,-0.28,.74,.05), opacity 0.7s;
+            will-change: transform, opacity;
+        }
+        .char-explode {
+            opacity: 0;
+            transform: translate(var(--tx), var(--ty)) scale(0.5) rotate(var(--rot));
+        }
         @media (max-width: 700px) {
             .container { padding: 24px 8px 24px 8px; }
             .content { font-size: 1.2em; }
@@ -170,25 +179,72 @@
         setTimeout(() => p.remove(), 700);
       }
     }
-    function animateQuoteChange(newQuote) {
-      createParticles();
+    function wrapChars(text) {
+      // 将每个字符用 span.char 包裹
+      return text.split('').map((ch, i) => `<span class="char" data-idx="${i}">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
+    }
+    function explodeChars(callback) {
       const content = document.getElementById('content');
+      const chars = content.querySelectorAll('.char');
+      chars.forEach((span, i) => {
+        // 随机方向和旋转
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 60 + Math.random() * 40;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+        const rot = (Math.random() * 720 - 360) + 'deg';
+        span.style.setProperty('--tx', tx + 'px');
+        span.style.setProperty('--ty', ty + 'px');
+        span.style.setProperty('--rot', rot);
+        span.classList.add('char-explode');
+      });
+      setTimeout(callback, 600); // 动画结束后回调
+    }
+    function animateQuoteChange(newQuote) {
+      // 字爆炸动画
+      const content = document.getElementById('content');
+      if (content.innerHTML.trim()) {
+        explodeChars(() => {
+          // 切换新内容
+          content.innerHTML = wrapChars(newQuote.content);
+          // 让新字从小到正常出现
+          const chars = content.querySelectorAll('.char');
+          chars.forEach((span, i) => {
+            span.style.opacity = '0';
+            span.style.transform = 'scale(0.5)';
+            setTimeout(() => {
+              span.style.transition = 'transform 0.5s, opacity 0.5s';
+              span.style.opacity = '1';
+              span.style.transform = 'scale(1)';
+            }, 40 * i);
+          });
+        });
+      } else {
+        // 首次加载
+        content.innerHTML = wrapChars(newQuote.content);
+        const chars = content.querySelectorAll('.char');
+        chars.forEach((span, i) => {
+          span.style.opacity = '0';
+          span.style.transform = 'scale(0.5)';
+          setTimeout(() => {
+            span.style.transition = 'transform 0.5s, opacity 0.5s';
+            span.style.opacity = '1';
+            span.style.transform = 'scale(1)';
+          }, 40 * i);
+        });
+      }
+      // 作者和出处淡入淡出动画不变
       const author = document.getElementById('author');
       const source = document.getElementById('source');
-      content.classList.remove('fade-in');
       author.classList.remove('fade-in');
       source.classList.remove('fade-in');
-      content.classList.add('fade-out');
       author.classList.add('fade-out');
       source.classList.add('fade-out');
       setTimeout(() => {
-        content.innerText = newQuote.content;
         author.innerText = newQuote.author ? '—— ' + newQuote.author : '';
         source.innerText = newQuote.source ? '《' + newQuote.source + '》' : '';
-        content.classList.remove('fade-out');
         author.classList.remove('fade-out');
         source.classList.remove('fade-out');
-        content.classList.add('fade-in');
         author.classList.add('fade-in');
         source.classList.add('fade-in');
       }, 350);
