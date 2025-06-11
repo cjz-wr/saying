@@ -146,83 +146,16 @@
         document.getElementById('source').innerText = '';
       });
     function wrapChars(text) {
-      // 将每个字符用 span.char 包裹
-      return text.split('').map((ch, i) => `<span class="char" data-idx="${i}">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
+      // 直接返回原文本，不再包裹 span
+      return text;
     }
     function explodeChars(callback) {
-      const content = document.getElementById('content');
-      const wrapper = document.querySelector('.content-wrapper');
-      const chars = Array.from(content.querySelectorAll('.char'));
-      // 计算每个字的绝对位置
-      const contentRect = content.getBoundingClientRect();
-      const wrapperRect = wrapper.getBoundingClientRect();
-      chars.forEach((span, i) => {
-        const rect = span.getBoundingClientRect();
-        // 计算相对于 wrapper 的位置
-        const left = rect.left - wrapperRect.left;
-        const top = rect.top - wrapperRect.top;
-        // 变为绝对定位
-        span.style.position = 'absolute';
-        span.style.left = left + 'px';
-        span.style.top = top + 'px';
-        span.style.width = rect.width + 'px';
-        span.style.height = rect.height + 'px';
-      });
-      // 让 content 清空，chars 直接挂到 wrapper 上
-      content.innerHTML = '';
-      chars.forEach(span => wrapper.appendChild(span));
-      // 强制重绘
-      chars.forEach(span => span.offsetWidth);
-      // 爆炸动画
-      chars.forEach((span, i) => {
-        const angle = Math.random() * 2 * Math.PI;
-        const distance = 90 + Math.random() * 60;
-        const tx = Math.cos(angle) * distance;
-        const ty = Math.sin(angle) * distance;
-        const rot = (Math.random() * 1080 - 540) + 'deg';
-        span.style.setProperty('--tx', tx + 'px');
-        span.style.setProperty('--ty', ty + 'px');
-        span.style.setProperty('--rot', rot);
-        span.classList.add('char-explode');
-      });
-      setTimeout(() => {
-        // 移除所有爆炸字
-        chars.forEach(span => span.remove());
-        callback();
-      }, 800);
+      // 不做任何动画，直接回调
+      callback();
     }
     function animateQuoteChange(newQuote) {
       const content = document.getElementById('content');
-      const wrapper = document.querySelector('.content-wrapper');
-      if (content.innerHTML.trim()) {
-        explodeChars(() => {
-          content.innerHTML = wrapChars(newQuote.content);
-          // 新字弹入
-          const chars = content.querySelectorAll('.char');
-          chars.forEach((span, i) => {
-            span.style.opacity = '0';
-            span.style.transform = 'scale(0.4)';
-            setTimeout(() => {
-              span.style.transition = 'transform 0.5s, opacity 0.5s';
-              span.style.opacity = '1';
-              span.style.transform = 'scale(1)';
-            }, 30 * i);
-          });
-        });
-      } else {
-        // 首次加载
-        content.innerHTML = wrapChars(newQuote.content);
-        const chars = content.querySelectorAll('.char');
-        chars.forEach((span, i) => {
-          span.style.opacity = '0';
-          span.style.transform = 'scale(0.4)';
-          setTimeout(() => {
-            span.style.transition = 'transform 0.5s, opacity 0.5s';
-            span.style.opacity = '1';
-            span.style.transform = 'scale(1)';
-          }, 30 * i);
-        });
-      }
+      content.innerHTML = wrapChars(newQuote.content);
       // 作者和出处淡入淡出动画不变
       const author = document.getElementById('author');
       const source = document.getElementById('source');
