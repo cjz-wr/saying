@@ -5,13 +5,101 @@
     <title>每日一句名言</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: '微软雅黑', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 80px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #ccc; padding: 40px; }
-        .content { font-size: 1.5em; color: #333; margin-bottom: 30px; }
-        .author { text-align: right; color: #888; font-size: 1.1em; }
-        .source { text-align: right; color: #aaa; font-size: 1em; }
-        .btn { display: block; margin: 30px auto 0; padding: 10px 30px; font-size: 1em; background: #0078d7; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
-        .btn:hover { background: #005fa3; }
+        body {
+            font-family: '微软雅黑', Arial, sans-serif;
+            background: linear-gradient(135deg, #ffe3b3 0%, #ffd6a0 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            animation: bgMove 8s ease-in-out infinite alternate;
+            background-size: 200% 200%;
+        }
+        @keyframes bgMove {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+        .container {
+            max-width: 600px;
+            margin: 80px auto;
+            background: rgba(255,255,255,0.97);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(255, 140, 0, 0.13);
+            padding: 48px 36px 40px 36px;
+            transition: box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 1s cubic-bezier(.39,.575,.565,1.000);
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .content, .author, .source {
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        .fade-out {
+            opacity: 0 !important;
+            transform: translateY(20px) scale(0.98) !important;
+        }
+        .fade-in {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1) !important;
+        }
+        .content {
+            font-size: 1.7em;
+            color: #b85c00;
+            margin-bottom: 32px;
+            line-height: 1.6;
+            text-align: center;
+            letter-spacing: 1px;
+            min-height: 80px;
+        }
+        .author {
+            text-align: right;
+            color: #ff9800;
+            font-size: 1.15em;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .source {
+            text-align: right;
+            color: #ffb74d;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+        .btn {
+            display: block;
+            margin: 36px auto 0;
+            padding: 12px 38px;
+            font-size: 1.1em;
+            background: linear-gradient(90deg, #ff9800 0%, #ffb74d 100%);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #ffd6a0;
+            transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+            font-weight: bold;
+            letter-spacing: 2px;
+            outline: none;
+        }
+        .btn:hover {
+            background: linear-gradient(90deg, #ffb74d 0%, #ff9800 100%);
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 6px 18px #ffd6a0;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        @media (max-width: 700px) {
+            .container { padding: 24px 8px 24px 8px; }
+            .content { font-size: 1.2em; }
+            .btn { padding: 10px 18px; font-size: 1em; }
+        }
     </style>
 </head>
 <body>
@@ -24,17 +112,45 @@
     <script>
     let quotes = [];
     fetch('merged.json')
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) throw new Error('无法加载名言数据');
+        return r.json();
+      })
       .then(data => {
         quotes = data.filter(q => q && q.content);
         showRandomQuote();
+      })
+      .catch(e => {
+        document.getElementById('content').innerText = '名言数据加载失败，请刷新或联系站长！';
+        document.getElementById('author').innerText = '';
+        document.getElementById('source').innerText = '';
       });
+    function animateQuoteChange(newQuote) {
+      const content = document.getElementById('content');
+      const author = document.getElementById('author');
+      const source = document.getElementById('source');
+      content.classList.remove('fade-in');
+      author.classList.remove('fade-in');
+      source.classList.remove('fade-in');
+      content.classList.add('fade-out');
+      author.classList.add('fade-out');
+      source.classList.add('fade-out');
+      setTimeout(() => {
+        content.innerText = newQuote.content;
+        author.innerText = newQuote.author ? '—— ' + newQuote.author : '';
+        source.innerText = newQuote.source ? '《' + newQuote.source + '》' : '';
+        content.classList.remove('fade-out');
+        author.classList.remove('fade-out');
+        source.classList.remove('fade-out');
+        content.classList.add('fade-in');
+        author.classList.add('fade-in');
+        source.classList.add('fade-in');
+      }, 350);
+    }
     function showRandomQuote() {
       if (!quotes.length) return;
       const q = quotes[Math.floor(Math.random() * quotes.length)];
-      document.getElementById('content').innerText = q.content;
-      document.getElementById('author').innerText = q.author ? '—— ' + q.author : '';
-      document.getElementById('source').innerText = q.source ? '《' + q.source + '》' : '';
+      animateQuoteChange(q);
     }
     </script>
 </body>
