@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>每日一句名言</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: '微软雅黑', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 80px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #ccc; padding: 40px; }
+        .content { font-size: 1.5em; color: #333; margin-bottom: 30px; }
+        .author { text-align: right; color: #888; font-size: 1.1em; }
+        .source { text-align: right; color: #aaa; font-size: 1em; }
+        .btn { display: block; margin: 30px auto 0; padding: 10px 30px; font-size: 1em; background: #0078d7; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+        .btn:hover { background: #005fa3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content" id="content"></div>
+        <div class="author" id="author"></div>
+        <div class="source" id="source"></div>
+        <button class="btn" onclick="showRandomQuote()">换一句</button>
+    </div>
+    <script>
+    let quotes = [];
+    fetch('merged.json')
+      .then(r => r.json())
+      .then(data => {
+        quotes = data.filter(q => q && q.content);
+        showRandomQuote();
+      });
+    function showRandomQuote() {
+      if (!quotes.length) return;
+      const q = quotes[Math.floor(Math.random() * quotes.length)];
+      document.getElementById('content').innerText = q.content;
+      document.getElementById('author').innerText = q.author ? '—— ' + q.author : '';
+      document.getElementById('source').innerText = q.source ? '《' + q.source + '》' : '';
+    }
+    </script>
+</body>
+</html>
